@@ -1,0 +1,13 @@
+{
+  "projects": [
+    {
+      "path": "/ganti/dengan/path/proyekmu",
+      "name": "Nama proyekmu",
+      "description": "Tujuan dan konteks proyek ini.",
+      "notes": [{"title": "Catatan arsitektur", "url": "https://example.com/catatan"}],
+      "decisions": ["Contoh: keputusan yang sudah kamu konfirmasi"],
+      "reviewed": [{"title": "Contoh: hasil yang sudah kamu review", "url": "https://example.com/review"}]
+    }
+  ],
+  "notes": [{"title": "Contoh: indeks pengetahuan pribadi", "url": "https://example.com/notes"}]
+}

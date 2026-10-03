@@ -1,0 +1,15 @@
+{
+  "name": "kantor-kecil",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Kantor 3D lokal untuk sesi Codex CLI",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test test/*.test.mjs",
+    "check": "node --check server.mjs && node --check codex-reader.mjs && node --check public/app.js && node --check public/world.js"
+  }
+}

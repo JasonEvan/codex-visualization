@@ -1,0 +1,5 @@
+node_modules/
+workspace.local.json
+test-results/
+*.log
+.DS_Store
