@@ -44,3 +44,10 @@ test('context sanitizes external links and rejects malformed config gracefully',
  const root=await mkdtemp(path.join(os.tmpdir(),'kantor-config-'));const file=path.join(root,'context.json');
  try{await writeFile(file,JSON.stringify({projects:[{path:'/p',name:'P',notes:[{title:'Unsafe',url:'javascript:alert(1)'},{title:'Valid',url:'https://example.com'}]}],notes:['Personal note']}));const c=await readContext(file);assert.equal(c.projects[0].notes[0].url,undefined);assert.equal(c.projects[0].notes[1].url,'https://example.com/');assert.equal(c.notes[0].title,'Personal note');await writeFile(file,'{bad');assert.ok((await readContext(file)).warning);}finally{await rm(root,{recursive:true,force:true});}
 });
+
+test('recent tool response items keep a started turn fresh without exposing tool contents',()=>{
+ const s=parseSession([meta(),event('task_started'),row('response_item',{type:'function_call_output',output:'PRIVATE OUTPUT'},'2026-10-02T10:04:00Z')].join('\n'),'',Date.parse('2026-10-02T10:04:30Z'));
+ assert.equal(s.status,'started');assert.equal(s.lastEventAt,'2026-10-02T10:04:00.000Z');assert.ok(!JSON.stringify(s).includes('PRIVATE OUTPUT'));
+ const finished=parseSession([meta(),event('task_complete'),row('response_item',{type:'message'},'2026-10-02T10:04:00Z')].join('\n'),'',Date.parse('2026-10-02T10:04:30Z'));
+ assert.equal(finished.status,'complete');
+});

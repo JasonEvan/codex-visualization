@@ -18,9 +18,10 @@ export function parseSession(text, fallbackId = '', now = Date.now()) {
     const p = row.payload || {};
     if (row.type === 'session_meta') { meta = p; cwd = clean(p.cwd, 1024); }
     if (row.type === 'turn_context' && typeof p.cwd === 'string') cwd = clean(p.cwd, 1024);
-    if (row.type !== 'event_msg') continue;
     const at = timestamp(row.timestamp);
-    if (at) lastEventAt = at;
+    // Tool calls/results can keep a started turn fresh without exposing content.
+    if (at && ['event_msg', 'response_item'].includes(row.type)) lastEventAt = at;
+    if (row.type !== 'event_msg') continue;
     const labels = { task_started: 'Giliran dimulai', task_complete: 'Giliran selesai', turn_aborted: 'Giliran dibatalkan' };
     if (labels[p.type] && at) {
       marker = { type: p.type, at, label: labels[p.type] };

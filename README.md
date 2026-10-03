@@ -73,7 +73,7 @@ Pembaca memeriksa metadata log setiap 5 detik. Ini **bukan koneksi langsung ke p
 | Status tugas tidak tersedia | Metadata sesi terbaca, tetapi penanda tugas tidak dikenali. |
 | Pembaca terputus | Browser gagal menjangkau server. Data sebelumnya mungkin sudah berubah. |
 
-**Seluruh kegiatan karakter—berjalan, menulis, membaca, mengobrol, dan beristirahat—adalah dekoratif**, terpisah dari status di panel. Nara di basement adalah maskot koordinator, bukan agent yang diam-diam menjalankan pekerjaan. Bimo adalah barista dekoratif. Tidak ada agent baru yang dibuat.
+**Karakter sesi lokal mengikuti status log:** saat `started`, karakter berjalan melalui pintu ke meja ruang proyek dan tetap bekerja di sana. Saat `complete` atau `aborted`, karakter boleh menuju kafe dan beristirahat. Giliran baru langsung membalik arah perjalanan kembali ke meja tanpa teleport. Status `stale`, `unknown`, atau pembaca terputus menghentikan perjalanan/gerak kerja dengan keterangan menunggu status. Pembaruan status diterapkan setiap polling tanpa membangun ulang dunia. Gerakan ini ilustrasi status giliran, bukan rekaman tindakan spesifik (misalnya file yang sedang diedit). Karakter contoh dan penghuni umum tetap mempunyai rutinitas dekoratif. Nara di basement adalah maskot koordinator, bukan agent yang diam-diam menjalankan pekerjaan. Bimo adalah barista dekoratif. Tidak ada agent baru yang dibuat.
 
 Format log Codex bisa berubah. Versi ini mengenali JSONL dengan `session_meta`, `turn_context`, dan `event_msg`. Format yang belum dikenal ditampilkan sebagai tidak tersedia; tidak ditebak.
 
@@ -140,7 +140,7 @@ npm run check
 npm test
 ```
 
-`server.mjs`: server HTTP lokal dengan pembatasan asal dan cache 4 detik. `codex-reader.mjs`: pembaca log hanya-baca dan konteks. `public/world.js`: geometri 3D, kamera, karakter, dan rutinitas. `public/app.js`: panel, sumber data, tur, dan audio. `public/vendor`: Three.js r180 + OrbitControls dengan lisensi MIT asli.
+`server.mjs`: server HTTP lokal dengan pembatasan asal dan cache 4 detik. `codex-reader.mjs`: pembaca log hanya-baca dan konteks. `public/world.js`: geometri 3D, kamera, karakter, dan rutinitas. `public/app.js`: panel, sumber data, tur, dan audio. `public/session-motion.js`: perjalanan dan gerakan berdasarkan status sesi. `public/vendor`: Three.js r180 + OrbitControls dengan lisensi MIT asli.
 
 Versi awal ini menggunakan geometri 3D bergaya mainan yang lebih sederhana daripada gambar mockup. Ini adalah dunia yang dirender dan dianimasikan, bukan gambar mockup dengan hotspot.
 

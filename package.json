@@ -10,6 +10,6 @@
   "scripts": {
     "start": "node server.mjs",
     "test": "node --test test/*.test.mjs",
-    "check": "node --check server.mjs && node --check codex-reader.mjs && node --check public/app.js && node --check public/world.js"
+    "check": "node --check server.mjs && node --check codex-reader.mjs && node --check public/app.js && node --check public/world.js && node --check public/session-motion.js"
   }
 }

@@ -1,3 +1,4 @@
+import { createSessionMotion, syncSessionMotion, stepSessionMotion } from './session-motion.js';
 import * as THREE from '/vendor/three.module.min.js';
 import { OrbitControls } from '/vendor/OrbitControls.js';
 
@@ -90,7 +91,7 @@ export function createWorld(container,onSelect,onRoutine){
  const book=group(visual,0,.65,.3);box(book,0x9785ae,0,0,0,.37,.27,.07);box(book,0xf0dec0,0,.01,.045,.32,.21,.01);book.visible=false;
  const halo=new THREE.Mesh(new THREE.RingGeometry(.45,.5,40),new THREE.MeshBasicMaterial({color:0xc1a2e1,side:THREE.DoubleSide,transparent:true,opacity:0}));halo.rotation.x=-Math.PI/2;halo.position.y=.075;root.add(halo);
  root.scale.setScalar(.98);pickables.push(root);const offset=(index%3-1)*.85;const home=new THREE.Vector3(room.x+offset,room.y+.055,room.z+.25+(Math.floor(index/3)%2)*.85);root.position.copy(home);root.rotation.y=Math.PI;
- const actor={...data,root,visual,arms,legs,book,halo,room,home,route:[],step:0,state:'work',timer:7+(actors.length*4)%22,routine:'Menata ide di meja',walkTime:0};actors.push(actor);return actor;
+ const actor={...data,root,visual,arms,legs,book,halo,room,home,route:[],step:0,state:'work',timer:7+(actors.length*4)%22,routine:'Menata ide di meja',walkTime:0};actors.push(actor);if(data.session)createSessionMotion(actor,rooms.find(r=>r.type==='cafe'),index,onRoutine);return actor;
  }
  function rebuild(next){model=next;disposeContent();rooms=[];actors=[];pickables=[];basementLight=null;
  const projects=next.projects;const main=[...projects.map(p=>({...p,type:'project'})),...next.common.filter(r=>r.type!=='den')];const rows=Math.ceil(main.length/3);const spacingX=7.5,spacingZ=7;const firstZ=-(rows-1)*spacingZ/2;
@@ -115,15 +116,18 @@ export function createWorld(container,onSelect,onRoutine){
  a.route=route;a.step=0;a.state='walking';a.trip='out';a.returnRoute=[...route.slice(0,-1)].reverse().concat([a.home.clone()]);a.routine='Berjalan ke kafe';onRoutine(a.id,a.routine);
  }
  function updateActor(a,dt,t){a.timer-=dt;let moving=false;
+ if(a.sessionMotion){moving=stepSessionMotion(a,dt);}else {
  if(a.state==='walking'){
  const target=a.route[a.step];if(target){const delta=target.clone().sub(a.root.position);if(delta.length()<.07){a.root.position.copy(target);a.step++;}else{moving=true;const move=Math.min(delta.length(),dt*.95);a.root.position.addScaledVector(delta.normalize(),move);a.root.rotation.y=Math.atan2(delta.x,delta.z);}}
  else if(a.trip==='out'){a.state='break';a.timer=8+actors.indexOf(a)%6;a.routine=actors.indexOf(a)%2?'Mengobrol sambil minum kopi':'Istirahat sejenak di kafe';a.root.rotation.y=0;onRoutine(a.id,a.routine);}
  else{a.state='work';a.timer=18+actors.indexOf(a)%12;a.root.rotation.y=Math.PI;a.routine='Menulis dan menata ide';onRoutine(a.id,a.routine);}
  }else if(a.timer<=0){if(a.state==='break'){a.route=a.returnRoute;a.step=0;a.trip='back';a.state='walking';a.routine='Kembali melewati pintu';onRoutine(a.id,a.routine);}else if(a.state==='read'){a.state='work';a.timer=15;a.routine=a.species==='bear'?'Menyiapkan kopi':'Menyusun rencana';onRoutine(a.id,a.routine);}else if(actors.indexOf(a)%2===0&&a.state==='work'&&!a.didRead){a.didRead=true;a.state='read';a.timer=10;a.routine='Membaca catatan';onRoutine(a.id,a.routine);}else{a.didRead=false;startTrip(a);}}
- const phase=t*7+actors.indexOf(a);a.visual.position.y=moving?Math.abs(Math.sin(phase))*.055:Math.sin(t*1.8+actors.indexOf(a))*.012;a.legs.forEach((leg,i)=>leg.rotation.x=moving?Math.sin(phase+i*Math.PI)*.45:0);a.arms.forEach((arm,i)=>{arm.rotation.x=moving?-Math.sin(phase+i*Math.PI)*.38:a.state==='read'?-.95:a.state==='work'?-.6+Math.sin(t*4+i)*.08:Math.sin(t*2+i)*.12;});a.book.visible=a.state==='read';
+ }
+ const phase=t*7+actors.indexOf(a);a.visual.position.y=moving?Math.abs(Math.sin(phase))*.055:Math.sin(t*1.8+actors.indexOf(a))*.012;a.legs.forEach((leg,i)=>leg.rotation.x=moving?Math.sin(phase+i*Math.PI)*.45:0);a.arms.forEach((arm,i)=>{arm.rotation.x=moving?-Math.sin(phase+i*Math.PI)*.38:a.state==='read'?-.95:a.state==='work'?-.6+Math.sin(t*4+i)*.08:a.state==='waiting'?0:Math.sin(t*2+i)*.12;});a.book.visible=a.state==='read';
  }
  const clock=new THREE.Clock();let elapsed=0;let frame;
  function render(){frame=requestAnimationFrame(render);const dt=Math.min(clock.getDelta(),.05);if(!paused&&!document.hidden){elapsed+=dt;for(const a of actors)updateActor(a,dt,elapsed);}if(focusTarget){controls.target.lerp(focusTarget,.08);camera.position.lerp(focusCamera,.08);if(controls.target.distanceTo(focusTarget)<.01)focusTarget=null;}controls.update();renderer.render(scene,camera);}
  const resize=new ResizeObserver(()=>{const w=container.clientWidth,h=container.clientHeight;if(w&&h){camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h,false);}});resize.observe(container);render();
- return {rebuild,select,focus,reset,zoom(factor){camera.position.sub(controls.target).multiplyScalar(factor).add(controls.target);controls.update();},rotate(){const offset=camera.position.clone().sub(controls.target);offset.applyAxisAngle(new THREE.Vector3(0,1,0),Math.PI/4);camera.position.copy(controls.target).add(offset);controls.update();},pause(value){paused=value;},get paused(){return paused;},get rooms(){return rooms;},dispose(){cancelAnimationFrame(frame);resize.disconnect();controls.dispose();renderer.dispose();}};
+ function syncSessions(next,connected=true){const byId=new Map(next.map(a=>[a.id,a]));for(const actor of actors){if(actor.sessionMotion)syncSessionMotion(actor,byId.get(actor.id)?.session,connected);}}
+ return {rebuild,syncSessions,select,focus,reset,zoom(factor){camera.position.sub(controls.target).multiplyScalar(factor).add(controls.target);controls.update();},rotate(){const offset=camera.position.clone().sub(controls.target);offset.applyAxisAngle(new THREE.Vector3(0,1,0),Math.PI/4);camera.position.copy(controls.target).add(offset);controls.update();},pause(value){paused=value;},get paused(){return paused;},get rooms(){return rooms;},dispose(){cancelAnimationFrame(frame);resize.disconnect();controls.dispose();renderer.dispose();}};
 }

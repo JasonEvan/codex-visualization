@@ -5,7 +5,7 @@ Jalankan `npm run check` dan `npm test`, lalu `npm start`.
 1. Buka http://localhost:4173. Tanpa sesi lokal yang dikenali, **Dunia contoh** harus berlabel data contoh. Peta harus menampilkan ruangan, karakter, dan basement; tidak ada klaim proses aktif.
 2. Coba putar, zoom, seret kanan, reset; klik ruangan dan karakter. Coba daftar ruangan menggunakan Tab/Enter. Panel harus sesuai pilihan.
 3. Pilih **Tur ruangan**, maju/mundur. Kamera harus mendekati ruangan; pembaruan data setiap 5 detik tidak mengatur ulang langkah yang dipilih.
-4. Jeda animasi. Karakter harus berhenti, sementara kamera tetap bisa dikontrol. Lanjutkan untuk melihat karakter berjalan melewati pintu ke kafe, istirahat, lalu pulang.
+4. Jeda animasi. Karakter harus berhenti, sementara kamera tetap bisa dikontrol. Pada Dunia contoh, lanjutkan untuk melihat rutinitas dekoratif. Pada Sesi Codex, karakter dengan status mulai harus masuk lewat pintu dan tetap bekerja di meja sampai selesai/dibatalkan. Sesi yang selesai boleh pergi ke kafe. Mulai giliran baru ketika karakter sedang berjalan atau beristirahat: ia harus berbalik menuju meja tanpa teleport. Status tidak diketahui/pembaca terputus harus menghentikan gerak kerja.
 5. Pilih **Sesi Codex**. Jalankan Codex CLI pada proyekmu. Setelah paling lama sekitar 5 detik, sesi dengan format yang didukung harus muncul. Event selesai berarti giliran selesai, bukan seluruh proyek selesai.
 6. Matikan server. Setelah permintaan refresh berikutnya gagal, panel harus menyatakan pembaca terputus dan tidak mengklaim status terkini. Jalankan kembali lalu perbarui.
 7. Coba `--config workspace.local.json`; ganti judul catatan dan periksa panel setelah refresh. Jangan masukkan data contoh sebagai bukti review sungguhan.
